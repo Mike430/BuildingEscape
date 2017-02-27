@@ -21,9 +21,11 @@ void UDoorOpenCloser::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
+	_mOpenAngle = 150.0f;
 	_mOwner = GetOwner();
-	_mOpeningRotation = FRotator(0.0f, 150.0f, 0.0f);
-	_mOwner->SetActorRotation(_mOpeningRotation);
+	_mOpenRotation = FRotator(0.0f, _mOpenAngle, 0.0f);
+	_mCloseRotation = FRotator(0.0f, 0.0f, 0.0f);
+	_mOwner->SetActorRotation(_mCloseRotation);
 	
 }
 
@@ -33,6 +35,12 @@ void UDoorOpenCloser::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	if (_mOpenTrigger->IsOverlappingActor(_mActorThatOpens))
+	{
+		this->OpenDoor();
+	}
+	else
+	{
+		this->CloseDoor();
+	}
 }
-

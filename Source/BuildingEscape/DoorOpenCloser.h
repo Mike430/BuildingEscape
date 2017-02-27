@@ -19,13 +19,23 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	//AActor* _mOwner;
+	//FRotator _mOpeningRotation;
+
 	AActor* _mOwner;
-	FRotator _mOpeningRotation;
+	FRotator _mOpenRotation;
+	FRotator _mCloseRotation;
+	UPROPERTY(VisibleAnywhere)
+		float _mOpenAngle;
+	UPROPERTY(EditAnywhere)
+		ATriggerVolume* _mOpenTrigger;
+	UPROPERTY(EditAnywhere)
+		AActor* _mActorThatOpens;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
-	
+	void OpenDoor() { _mOwner->SetActorRotation(_mOpenRotation); }
+	void CloseDoor() { _mOwner->SetActorRotation(_mCloseRotation); }
 };
