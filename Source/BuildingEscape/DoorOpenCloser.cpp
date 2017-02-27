@@ -26,7 +26,7 @@ void UDoorOpenCloser::BeginPlay()
 	_mOpenRotation = FRotator(0.0f, _mOpenAngle, 0.0f);
 	_mCloseRotation = FRotator(0.0f, 0.0f, 0.0f);
 	_mOwner->SetActorRotation(_mCloseRotation);
-	
+	_mActorThatOpens = this->GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 
