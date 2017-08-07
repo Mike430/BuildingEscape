@@ -21,9 +21,26 @@ void UDoorOpenCloser::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	_mOpenAngle = 150.0f;
 	_mOwner = GetOwner();
-	_mOpenRotation = FRotator(0.0f, _mOpenAngle, 0.0f);
+
+	switch(_mHinge)
+	{
+		case DoorHingeAxis::ON_X_AXIS:
+			_mOpenRotation = FRotator( _mOpenAngle, 0.0f, 0.0f );
+			break;
+		case DoorHingeAxis::ON_Y_AXIS:
+			_mOpenRotation = FRotator( 0.0f, _mOpenAngle, 0.0f );
+			break;
+		case DoorHingeAxis::ON_Z_AXIS:
+			_mOpenRotation = FRotator( 0.0f, 0.0f, _mOpenAngle );
+			break;
+		default:
+			_mOpenRotation = FRotator( 0.0f, _mOpenAngle, 0.0f );
+			break;
+	}
+
+
+
 	_mCloseRotation = FRotator(0.0f, 0.0f, 0.0f);
 	_mOwner->SetActorRotation(_mCloseRotation);
 	_mActorThatOpens = this->GetWorld()->GetFirstPlayerController()->GetPawn();
@@ -37,10 +54,20 @@ void UDoorOpenCloser::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	if (_mOpenTrigger->IsOverlappingActor(_mActorThatOpens))
 	{
-		this->OpenDoor();
+		if( _mIsPawnStillInTrigger == false )
+		{
+			this->OpenDoor();
+			_mTimeDoorLastOpened = GetWorld()->GetTimeSeconds();
+		}
+		_mIsPawnStillInTrigger = true;
 	}
 	else
 	{
-		this->CloseDoor();
+		_mIsPawnStillInTrigger = false;
+
+		if( (GetWorld()->GetTimeSeconds() - _mTimeDoorLastOpened ) > _mMaxTimeDoorPermittedOpen )
+		{
+			CloseDoor();
+		}
 	}
 }
