@@ -11,7 +11,7 @@ UGrabber::UGrabber()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	_mReach = 100;
+	//_mReach = 100;
 }
 
 
@@ -33,10 +33,10 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint( _mPlayerPosition,
 																_mPlayerViewAngle );
 
-	UE_LOG( LogTemp, Warning, TEXT( "Position %s and Rotation %s on the Player" ),
-		*_mPlayerPosition.ToString(), *_mPlayerViewAngle.ToString() );
+	/*UE_LOG( LogTemp, Warning, TEXT( "Position %s and Rotation %s on the Player" ),
+		*_mPlayerPosition.ToString(), *_mPlayerViewAngle.ToString() );*/
 
-	FVector PlayerForward = _mPlayerPosition + (_mPlayerViewAngle.Vector() * _mReach);
+	FVector PlayerForward = _mPlayerPosition + ( _mPlayerViewAngle.Vector() * _mReach );
 
 	DrawDebugLine( GetWorld(),
 				   _mPlayerPosition,
@@ -46,4 +46,21 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 				   0.0f,
 				   0.0f,
 				   10.0f );
+
+	FCollisionQueryParams traceParam( FName( TEXT( "" ) ), false, GetOwner() );
+	FHitResult hitResult;
+
+	GetWorld()->LineTraceSingleByObjectType( hitResult,
+											 _mPlayerPosition,
+											 PlayerForward,
+											 ECollisionChannel::ECC_PhysicsBody,
+											 traceParam
+	);
+
+	AActor* actorHit = hitResult.GetActor();
+
+	if( actorHit )
+	{
+		UE_LOG( LogTemp, Warning, TEXT( "RayCast hit %s" ), *(actorHit->GetName()) );
+	}
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include <string>
 #include "Grabber.generated.h"
 
 
@@ -25,7 +26,8 @@ protected:
 	FVector _mActorPosition;
 	FRotator _mActorViewAngle;
 
-	float _mReach;
+	UPROPERTY( EditAnywhere )
+		float _mReach;
 
 public:	
 	// Called every frame
