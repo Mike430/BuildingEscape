@@ -27,15 +27,10 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint( _mPlayerPosition,
-																_mPlayerViewAngle );
-
-	FVector PlayerForward = _mPlayerPosition + ( _mPlayerViewAngle.Vector() * _mReach );
-
-	//DrawRay( _mPlayerPosition, PlayerForward );
-
 	if( _mPhysicsHandle->GrabbedComponent )
 	{
+		FVector PlayerForward = GetReachLineEnd();
+		DrawRay( _mPlayerPosition, PlayerForward );
 		_mPhysicsHandle->SetTargetLocation( PlayerForward );
 	}
 }
@@ -48,11 +43,6 @@ void UGrabber::FindPhysicsHandleComponent()
 	if( _mPhysicsHandle == nullptr )
 	{
 		UE_LOG( LogTemp, Error, TEXT( "Grabber Owner missing UPhysicsHandleComponent on object %s" ), *( GetOwner()->GetName() ) );
-		_mOwnerhasPhysicsHandle = false;
-	}
-	else
-	{
-		_mOwnerhasPhysicsHandle = true;
 	}
 }
 
@@ -64,14 +54,8 @@ void UGrabber::SetupInputComponent()
 	if( _mInputComponent == nullptr )
 	{
 		UE_LOG( LogTemp, Error, TEXT( "Grabber Owner missing (Pawn)InputComponent on object %s" ), *( GetOwner()->GetName() ) );
-		_mOwnerHasInputComponent = false;
 	}
 	else
-	{
-		_mOwnerHasInputComponent = true;
-	}
-
-	if( _mOwnerHasInputComponent )
 	{
 		_mInputComponent->BindAction( "Grab", IE_Pressed, this, &UGrabber::Grab );
 		_mInputComponent->BindAction( "Grab", IE_Released, this, &UGrabber::Release );
@@ -79,27 +63,10 @@ void UGrabber::SetupInputComponent()
 }
 
 
-const void UGrabber::DrawRay( FVector start, FVector end )
-{
-	DrawDebugLine( GetWorld(),
-				   start,
-				   end,
-				   FColor( 255, 0.0f, 0.0f ),
-				   false,
-				   0.0f,
-				   0.0f,
-				   10.0f );
-}
-
-
 void UGrabber::Grab()
 {
-	UE_LOG( LogTemp, Warning, TEXT( "Grab button pressed!" ) );
-
-	// RayCast - try and reach an actor immidiatly infront of the player with a collision channel.
 	auto HitResult = GetFirstPhysicsBodyInReach();
 
-	// if hit - try and attch a physics handle to it.
 	if( HitResult.GetActor() != nullptr )
 	{
 		auto GrabTargetComponent = HitResult.GetComponent();
@@ -113,19 +80,15 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
-	UE_LOG( LogTemp, Warning, TEXT( "Grab button released!" ) );
-	// TODO release Physics handle.
-
 	_mPhysicsHandle->ReleaseComponent();
 }
 
 
-const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
+FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 {
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint( _mPlayerPosition, _mPlayerViewAngle );
-
-	FVector PlayerForward = _mPlayerPosition + ( _mPlayerViewAngle.Vector() * _mReach );
+	FVector PlayerForward = GetReachLineEnd();
 	DrawRay( _mPlayerPosition, PlayerForward );
+
 	FCollisionQueryParams traceParam( FName( TEXT( "" ) ), false, GetOwner() );
 	FHitResult hitResult;
 
@@ -143,4 +106,26 @@ const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 	}
 
 	return hitResult;
+}
+
+
+FVector UGrabber::GetReachLineEnd()
+{
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint( _mPlayerPosition,
+																_mPlayerViewAngle );
+
+	return _mPlayerPosition + ( _mPlayerViewAngle.Vector() * _mReach );
+}
+
+
+const void UGrabber::DrawRay( FVector start, FVector end )
+{
+	DrawDebugLine( GetWorld(),
+				   start,
+				   end,
+				   FColor( 255, 0.0f, 0.0f ),
+				   false,
+				   0.0f,
+				   0.0f,
+				   10.0f );
 }

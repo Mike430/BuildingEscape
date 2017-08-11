@@ -22,34 +22,36 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPhysicsHandleComponent* _mPhysicsHandle = nullptr;
-	bool _mOwnerhasPhysicsHandle;
 	UInputComponent* _mInputComponent = nullptr;
-	bool _mOwnerHasInputComponent;
 
 	FVector _mPlayerPosition;
 	FRotator _mPlayerViewAngle;
 
-	FVector _mActorPosition;
-	FRotator _mActorViewAngle;
-
 	UPROPERTY( EditAnywhere )
 		float _mReach;
 
-	//rayCast and grab
+	// rayCast and possess object
 	void Grab();
-	//Drop possessed object
+	// Drop possessed object
 	void Release();
 
 private:
+	// Getting the physics handle on the Owner and binding it to a member level variable.
 	void FindPhysicsHandleComponent();
+
+	// Gets the input component that appears at runtime and handles bindings.
 	void SetupInputComponent();
-	const void DrawRay(FVector start, FVector end);
-	const FHitResult GetFirstPhysicsBodyInReach();
+
+	// Ray cast and return the first object hit.
+	FHitResult GetFirstPhysicsBodyInReach();
+
+	// Returns a point in front of the player and centred in view.
+	FVector GetReachLineEnd();
+	
+	// Utility function for drawing a red line between two points.
+	const void DrawRay( FVector start, FVector end );
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
-	
 };

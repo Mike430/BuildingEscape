@@ -14,4 +14,7 @@ Content/StarterContent/HDRI
 # Visual Studio Files #
 #######################
 
-*VC.db
+*.VC.db
+*.suo
+*.VC.opendb
+*.sln
