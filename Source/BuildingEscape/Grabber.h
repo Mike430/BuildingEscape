@@ -3,7 +3,8 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include <string>
+#include "PhysicsEngine/PhysicsHandleComponent.h"
+#include "Components/InputComponent.h"
 #include "Grabber.generated.h"
 
 
@@ -20,6 +21,11 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UPhysicsHandleComponent* _mPhysicsHandle = nullptr;
+	bool _mOwnerhasPhysicsHandle;
+	UInputComponent* _mInputComponent = nullptr;
+	bool _mOwnerHasInputComponent;
+
 	FVector _mPlayerPosition;
 	FRotator _mPlayerViewAngle;
 
@@ -28,6 +34,17 @@ protected:
 
 	UPROPERTY( EditAnywhere )
 		float _mReach;
+
+	//rayCast and grab
+	void Grab();
+	//Drop possessed object
+	void Release();
+
+private:
+	void FindPhysicsHandleComponent();
+	void SetupInputComponent();
+	const void DrawRay(FVector start, FVector end);
+	const FHitResult GetFirstPhysicsBodyInReach();
 
 public:	
 	// Called every frame
