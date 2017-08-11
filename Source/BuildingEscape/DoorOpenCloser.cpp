@@ -43,7 +43,6 @@ void UDoorOpenCloser::BeginPlay()
 
 	_mCloseRotation = FRotator(0.0f, 0.0f, 0.0f);
 	_mOwner->SetActorRotation(_mCloseRotation);
-	_mActorThatOpens = this->GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 
@@ -52,22 +51,32 @@ void UDoorOpenCloser::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (_mOpenTrigger->IsOverlappingActor(_mActorThatOpens))
+	if (GetTotalMassOfActorsOnPlate() >= PreasurePlateTriggerWeight)
 	{
-		if( _mIsPawnStillInTrigger == false )
-		{
-			this->OpenDoor();
-			_mTimeDoorLastOpened = GetWorld()->GetTimeSeconds();
-		}
-		_mIsPawnStillInTrigger = true;
+		this->OpenDoor();
 	}
 	else
 	{
-		_mIsPawnStillInTrigger = false;
-
-		if( (GetWorld()->GetTimeSeconds() - _mTimeDoorLastOpened ) > _mMaxTimeDoorPermittedOpen )
-		{
-			CloseDoor();
-		}
+		CloseDoor();
 	}
+}
+
+float UDoorOpenCloser::GetTotalMassOfActorsOnPlate()
+{
+	float returnVal = 0.0f;
+
+	TArray<AActor*> overlappingActors;
+	_mOpenTrigger->GetOverlappingActors( overlappingActors, nullptr);
+	float weight = 0.0f;
+
+	for( const auto* actor : overlappingActors )
+	{
+		weight = actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		returnVal += weight;
+		UE_LOG( LogTemp, Warning, TEXT( "%s weighs %f" ), *actor->GetName(), weight );
+	}
+
+	UE_LOG( LogTemp, Warning, TEXT( "%f out of %f" ), returnVal, PreasurePlateTriggerWeight );
+
+	return returnVal;
 }

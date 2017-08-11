@@ -31,17 +31,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	//AActor* _mOwner;
-	//FRotator _mOpeningRotation;
-
 	AActor* _mOwner;
 	FRotator _mOpenRotation;
 	FRotator _mCloseRotation;
 
 	float _mTimeDoorLastOpened;
 	bool _mIsPawnStillInTrigger;
-
-	AActor* _mActorThatOpens;
 
 	UPROPERTY( EditAnywhere )
 		float _mOpenAngle;
@@ -51,4 +46,9 @@ protected:
 		float _mMaxTimeDoorPermittedOpen;
 	UPROPERTY( EditAnywhere )
 		DoorHingeAxis _mHinge;
+	UPROPERTY( EditAnywhere )
+		float PreasurePlateTriggerWeight;
+
+private:
+	float GetTotalMassOfActorsOnPlate();
 };
