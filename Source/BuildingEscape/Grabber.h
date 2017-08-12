@@ -51,6 +51,9 @@ private:
 	// Utility function for drawing a red line between two points.
 	const void DrawRay( FVector start, FVector end );
 
+
+	const bool IsPhysicsHandleNullptr();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

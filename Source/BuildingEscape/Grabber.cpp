@@ -27,6 +27,11 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
+	if( IsPhysicsHandleNullptr() ) 
+	{
+		return;
+	}
+
 	if( _mPhysicsHandle->GrabbedComponent )
 	{
 		FVector PlayerForward = GetReachLineEnd();
@@ -65,6 +70,11 @@ void UGrabber::SetupInputComponent()
 
 void UGrabber::Grab()
 {
+	if( IsPhysicsHandleNullptr() )
+	{
+		return;
+	}
+
 	auto HitResult = GetFirstPhysicsBodyInReach();
 
 	if( HitResult.GetActor() != nullptr )
@@ -80,6 +90,11 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
+	if( IsPhysicsHandleNullptr() )
+	{
+		return;
+	}
+
 	_mPhysicsHandle->ReleaseComponent();
 }
 
@@ -128,4 +143,15 @@ const void UGrabber::DrawRay( FVector start, FVector end )
 				   0.0f,
 				   0.0f,
 				   10.0f );
+}
+
+
+const bool UGrabber::IsPhysicsHandleNullptr()
+{
+	if( _mPhysicsHandle == nullptr )
+	{
+		UE_LOG( LogTemp, Error, TEXT( "Grabber physics handle is uninitialised as nullptr." ) );
+		return true;
+	}
+	return false;
 }

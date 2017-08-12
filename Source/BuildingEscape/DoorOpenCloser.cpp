@@ -19,30 +19,6 @@ UDoorOpenCloser::UDoorOpenCloser()
 void UDoorOpenCloser::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	_mOwner = GetOwner();
-
-	switch(_mHinge)
-	{
-		case DoorHingeAxis::ON_X_AXIS:
-			_mOpenRotation = FRotator( _mOpenAngle, 0.0f, 0.0f );
-			break;
-		case DoorHingeAxis::ON_Y_AXIS:
-			_mOpenRotation = FRotator( 0.0f, _mOpenAngle, 0.0f );
-			break;
-		case DoorHingeAxis::ON_Z_AXIS:
-			_mOpenRotation = FRotator( 0.0f, 0.0f, _mOpenAngle );
-			break;
-		default:
-			_mOpenRotation = FRotator( 0.0f, _mOpenAngle, 0.0f );
-			break;
-	}
-
-
-
-	_mCloseRotation = FRotator(0.0f, 0.0f, 0.0f);
-	_mOwner->SetActorRotation(_mCloseRotation);
 }
 
 
@@ -51,13 +27,18 @@ void UDoorOpenCloser::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if( IsDoorTriggerNullptr() )
+	{
+		return;
+	}
+
 	if (GetTotalMassOfActorsOnPlate() >= PreasurePlateTriggerWeight)
 	{
-		this->OpenDoor();
+		_mOnOpenRequest.Broadcast();
 	}
 	else
 	{
-		CloseDoor();
+		_mOnCloseRequest.Broadcast();
 	}
 }
 
@@ -73,10 +54,20 @@ float UDoorOpenCloser::GetTotalMassOfActorsOnPlate()
 	{
 		weight = actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
 		returnVal += weight;
-		UE_LOG( LogTemp, Warning, TEXT( "%s weighs %f" ), *actor->GetName(), weight );
+		//UE_LOG( LogTemp, Warning, TEXT( "%s weighs %f" ), *actor->GetName(), weight );
 	}
 
-	UE_LOG( LogTemp, Warning, TEXT( "%f out of %f" ), returnVal, PreasurePlateTriggerWeight );
+	//UE_LOG( LogTemp, Warning, TEXT( "%f out of %f" ), returnVal, PreasurePlateTriggerWeight );
 
 	return returnVal;
+}
+
+const bool UDoorOpenCloser::IsDoorTriggerNullptr()
+{
+	if( _mOpenTrigger == nullptr )
+	{
+		UE_LOG( LogTemp, Error, TEXT( "DoorOpenCloser trigger is uninitialised as nullptr." ) );
+		return true;
+	}
+	return false;
 }

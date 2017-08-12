@@ -12,6 +12,8 @@ enum class DoorHingeAxis : uint8
 	ON_Z_AXIS	UMETA( DisplayName = "AroundZ" )
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE( FDoorEvent );
+
 UCLASS( ClassGroup = ( Custom ), meta = ( BlueprintSpawnableComponent ) )
 class BUILDINGESCAPE_API UDoorOpenCloser : public UActorComponent
 {
@@ -24,31 +26,22 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
-	void OpenDoor() { _mOwner->SetActorRotation( _mOpenRotation ); }
-	void CloseDoor() { _mOwner->SetActorRotation( _mCloseRotation ); }
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	AActor* _mOwner;
-	FRotator _mOpenRotation;
-	FRotator _mCloseRotation;
-
-	float _mTimeDoorLastOpened;
-	bool _mIsPawnStillInTrigger;
-
 	UPROPERTY( EditAnywhere )
-		float _mOpenAngle;
-	UPROPERTY( EditAnywhere )
-		ATriggerVolume* _mOpenTrigger;
-	UPROPERTY( EditAnywhere )
-		float _mMaxTimeDoorPermittedOpen;
-	UPROPERTY( EditAnywhere )
-		DoorHingeAxis _mHinge;
+		ATriggerVolume* _mOpenTrigger = nullptr;
 	UPROPERTY( EditAnywhere )
 		float PreasurePlateTriggerWeight;
 
+	UPROPERTY( BlueprintAssignable )
+		FDoorEvent _mOnOpenRequest;
+	UPROPERTY( BlueprintAssignable )
+		FDoorEvent _mOnCloseRequest;
+
 private:
 	float GetTotalMassOfActorsOnPlate();
+
+	const bool IsDoorTriggerNullptr();
 };
